@@ -44,7 +44,7 @@ param (
 #Requires -Version 6.0
 
 BEGIN {
-    $id = 1
+    $version = 1
 
     if ($help.IsPresent) { 
         Get-Help $($MyInvocation.MyCommand.Definition) -full
@@ -55,6 +55,42 @@ BEGIN {
 }
 
 PROCESS {
+    function Invoke-SwmfsCommand {
+        [CmdletBinding()]
+        param (
+            $log_file,
+            $command,
+            $params
+        )
+    
+        Write-Verbose "$command $params"
+        $now = (Get-Date).ToUniversalTime()
+        Add-Content -Path $log_file -Value "--`n$now - $command $params`n"
+        $result = & $command $params
+        Add-Content -Path $log_file -Value $result   
+    }
+
+    function Invoke-HeaderFooter {
+        [CmdletBinding()]
+        param (
+            $log_file,
+            [switch]$header,
+            [switch]$footer
+        )
+
+        $now = (Get-Date).ToUniversalTime()
+
+        if ($header.IsPresent) {
+            $string = "--`nversion: $version`nbegin: $now"
+        }
+        elseif ( $footer.IsPresent) {
+            $string = "--`nend: $now"
+        }
+
+        Add-Content -Path $log_file -Value $string
+    }
+    
+
     if ($help.IsPresent) { 
         return
     }
@@ -71,7 +107,7 @@ PROCESS {
         $server = 'localhost'
     }
 
-    $swmfs_test_log = "swmfs_test_{0}.log" -f (Get-Date (Get-Date).ToUniversalTime() -UFormat '+%Y%m%dT%H%M%S')
+    $log_file = "swmfs_test_{0}.log" -f (Get-Date (Get-Date).ToUniversalTime() -UFormat '+%Y%m%dT%H%M%S')
 
     $x86_dir = "$sw_root\core\bin\x86"
     $etc_dir = "$sw_root\core\etc\x86"
@@ -99,72 +135,45 @@ PROCESS {
     }
     
 
-    if (( Test-Path $swmfs_test_log)) {
-        Remove-Item $swmfs_test_log
+    if (( Test-Path $log_file)) {
+        Remove-Item $log_file
     }
 
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`nid: $id`nbegin: $now"
+    Invoke-HeaderFooter -log_file $log_file -header
 
-    # TODO: refactor to function
     $params = $server, "-n", 10, "-l", 4096
-    Write-Verbose "ping $params"
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`n$now - ping $params`n"
-    $result = & ping $params
-    Add-Content -Path $swmfs_test_log -Value $result   
+    Invoke-SwmfsCommand -log_file $log_file -command "ping" -params $params
 
     $params = 15, $server
-    Write-Verbose "$swmfs_test $params"
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`n$now - $swmfs_test $params`n"
-    $result = & $swmfs_test $params
-    Add-Content -Path $swmfs_test_log -Value $result   
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
 
     $params = $server
-    Write-Verbose "$swmfs_monitor $params"
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`n$now - $swmfs_monitor $params`n"
-    $result = & $swmfs_monitor $params
-    Add-Content -Path $swmfs_test_log -Value $result   
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_monitor -params $params
 
     if ($trace_level -gt 0) {
-        # $params = "-times", "-local_times", $trace_level, $pathname, $filename
         $params = "-times", "-local_times", $trace_level, $server
         Write-Verbose "$swmfs_trace $params"
         $job = & $swmfs_trace $params &    
     }
 
     $params = 13, $pathname, $filename, 10
-    Write-Verbose "$swmfs_test $params"
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`n$now - $swmfs_test $params`n"
-    $result = & $swmfs_test $params
-    Add-Content -Path $swmfs_test_log -Value $result   
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
 
     $params = 23, $pathname, $filename, $test_length, "100:#"
-    Write-Verbose "$swmfs_test $params"
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "`n--`n$now - $swmfs_test $params`n"
-    $result = & $swmfs_test $params
-    Add-Content -Path $swmfs_test_log -Value $result
-    
-    $params = 23, $pathname, $filename, $test_length, 0
-    Write-Verbose "$swmfs_test $params"
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "`n--`n$now - $swmfs_test $params`n"
-    $result = & $swmfs_test $params
-    Add-Content -Path $swmfs_test_log -Value $result    
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
 
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`nend: $now`n--"
+    $params = 23, $pathname, $filename, $test_length, 0
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
+
+    Invoke-HeaderFooter -log_file $log_file -footer
 
     if ($trace_level -gt 0) {
         Write-Verbose "retrieve swmfs_trace output..."
-        $job | Receive-Job | Add-Content -Path $swmfs_test_log    
+        Add-Content -Path $log_file -Value "--"
+        $job | Receive-Job | Add-Content -Path $log_file    
     }
     else {
-        Add-Content -Path $swmfs_test_log -Value "no swmfs_trace specified"        
+        Add-Content -Path $log_file -Value "no swmfs_trace specified"        
     }
 }
 
