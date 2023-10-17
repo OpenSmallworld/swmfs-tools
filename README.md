@@ -3,7 +3,7 @@
 ## create-certs.ps1
 
 Create `swmfs.key`, `swmfs.pem` and `swmfs.pfx` suitable for use with secured swmfs communication. By default it will create a certificate for the current machine or a named machine which can be Linux based.
-Use `.\create-certs.ps -help` for full details and examples
+Use `.\create-certs.ps1 -help` for full details and examples
 
 ### Usage
 
@@ -298,4 +298,177 @@ Certificate:
         db:e2:28:19:ce:d7:c8:b5
 
 (admin PS) C:\opt\sw\src\repos\swmfs-tools>
+```
+
+## swmfs-test.ps1
+
+Generate a swmfs support "bundle".
+Use `.\swmfs-test.ps1 -help` for full details and examples
+
+### Usage
+
+```powershell
+PS C:\opt\sw\src\repos\swmfs-tools> .\swmfs-test.ps1 -help
+
+NAME
+    C:\opt\sw\src\repos\swmfs-tools\swmfs-test.ps1
+
+SYNOPSIS
+
+
+SYNTAX
+    C:\opt\sw\src\repos\swmfs-tools\swmfs-test.ps1 [[-sw_root] <String>] [[-pathname] <String>] [[-filename] <String>] [[-test_length] <String>] [[-trace_level] <Int32>] [-help] [<CommonParameters>]
+
+
+DESCRIPTION
+    Generate a swmfs based support bundle
+
+
+PARAMETERS
+    -sw_root <String>
+        (string) root of a 5.x installation
+
+        Required?                    false
+        Position?                    1
+        Default value
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -pathname <String>
+        (string) pathname of a remote directory. can be unc or drive based path (if swmfs is running locally). host-qualified pathnames are not supported
+
+        Required?                    false
+        Position?                    2
+        Default value
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -filename <String>
+        (string) filename to test
+
+        Required?                    false
+        Position?                    3
+        Default value
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -test_length <String>
+        (string) test length as recognised by swmfs_test 23. default value is '10s'
+
+        Required?                    false
+        Position?                    4
+        Default value                10s
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -trace_level <Int32>
+        (integer) swmfs_trace level. default value is 0 (disabled)
+
+        Required?                    false
+        Position?                    5
+        Default value                0
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -help [<SwitchParameter>]
+        (switch) Display full help and examples
+
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
+
+INPUTS
+
+OUTPUTS
+
+NOTES
+
+
+        TODO: work with 4.x based installation
+
+    -------------------------- EXAMPLE 1 --------------------------
+
+    PS > # generate a swmfs support bundle using a UNC pathname
+    .\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds
+
+
+
+
+
+
+    -------------------------- EXAMPLE 2 --------------------------
+
+    PS > # generate a swmfs support bundle using a UNC pathname including swmfs_trace logging for the duration of the tests
+    # trace levels are 1 to 3 as normal, plus level 0 is disabled (default)
+    .\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds -trace 2
+
+
+
+
+
+
+    -------------------------- EXAMPLE 3 --------------------------
+
+    PS > # generate a swmfs support bundle using a local pathname. note: this only works on a swmfs server directly
+    .\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds
+
+
+
+
+
+
+
+RELATED LINKS
+    https://github.build.ge.com/105007530/swmfs-tools.git
+    https://github.com/OpenSmallworld/swmfs-tools
+    https://github.build.ge.com/105007530/swmfs-tools.git
+    https://github.com/OpenSmallworld/swmfs-tools
+
+
+PS C:\opt\sw\src\repos\swmfs-tools> 
+```
+
+### Examples
+
+```powershell
+PS > # generate a swmfs support bundle using a UNC pathname
+.\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds
+
+PS > # generate a swmfs support bundle using a UNC pathname including swmfs_trace logging for the duration of the tests
+# trace levels are 1 to 3 as normal, plus level 0 is disabled (default)
+.\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds -trace 2
+
+PS > # generate a swmfs support bundle using a local pathname. note: this only works on a swmfs server directly
+
+PS C:\opt\sw\src\repos\swmfs-tools> .\swmfs-test.ps1 -sw_root C:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0-0
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0
+PS C:\opt\sw\src\repos\swmfs-tools> 
+
+PS > # generate a swmfs support bundle using a local pathname including swmfs_trace output. note: this only works on a swmfs server directly
+
+PS C:\opt\sw\src\repos\swmfs-tools> .\swmfs-test.ps1 -sw_root C:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds -trace 2
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
+VERBOSE: C:\opt\sw\installed\532PB\core\etc\x86\swmfs_trace.exe -times -local_times 2 localhost
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0-0
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0
+VERBOSE: retrieve swmfs_trace output...
+PS C:\opt\sw\src\repos\swmfs-tools> 
 ```
