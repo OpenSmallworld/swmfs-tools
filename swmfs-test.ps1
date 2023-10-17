@@ -107,6 +107,13 @@ PROCESS {
     Add-Content -Path $swmfs_test_log -Value "--`nid: $id`nbegin: $now"
 
     # TODO: refactor to function
+    $params = $server, "-n", 10, "-l", 4096
+    Write-Verbose "ping $params"
+    $now = (Get-Date).ToUniversalTime()
+    Add-Content -Path $swmfs_test_log -Value "--`n$now - ping $params`n"
+    $result = & ping $params
+    Add-Content -Path $swmfs_test_log -Value $result   
+
     $params = 15, $server
     Write-Verbose "$swmfs_test $params"
     $now = (Get-Date).ToUniversalTime()
