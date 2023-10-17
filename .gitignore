@@ -1,1 +1,4 @@
-swmfs.*
+swmfs.key
+swmfs.pem
+swmfs.pfx
+*.log

@@ -44,6 +44,8 @@ param (
 #Requires -Version 6.0
 
 BEGIN {
+    $id = 1
+
     if ($help.IsPresent) { 
         Get-Help $($MyInvocation.MyCommand.Definition) -full
     }
@@ -102,7 +104,7 @@ PROCESS {
     }
 
     $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`nbegin: $now"
+    Add-Content -Path $swmfs_test_log -Value "--`nid: $id`nbegin: $now"
 
     # TODO: refactor to function
     $params = 15, $server

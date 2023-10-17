@@ -453,9 +453,8 @@ VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\inst
 VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
 VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
 VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0-0
 VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 0
 PS C:\opt\sw\src\repos\swmfs-tools> 
 
 PS > # generate a swmfs support bundle using a local pathname including swmfs_trace output. note: this only works on a swmfs server directly
@@ -466,9 +465,8 @@ VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
 VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
 VERBOSE: C:\opt\sw\installed\532PB\core\etc\x86\swmfs_trace.exe -times -local_times 2 localhost
 VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0-0
 VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100 0
+VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 0
 VERBOSE: retrieve swmfs_trace output...
 PS C:\opt\sw\src\repos\swmfs-tools> 
 ```
