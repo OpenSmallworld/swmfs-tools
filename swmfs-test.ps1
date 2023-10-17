@@ -133,13 +133,6 @@ PROCESS {
     $result = & $swmfs_test $params
     Add-Content -Path $swmfs_test_log -Value $result   
 
-    $params = 23, $pathname, $filename, $test_length, 100, "0-0"
-    Write-Verbose "$swmfs_test $params"
-    $now = (Get-Date).ToUniversalTime()
-    Add-Content -Path $swmfs_test_log -Value "--`n$now - $swmfs_test $params`n"
-    $result = & $swmfs_test $params
-    Add-Content -Path $swmfs_test_log -Value $result
-    
     $params = 23, $pathname, $filename, $test_length, "100:#"
     Write-Verbose "$swmfs_test $params"
     $now = (Get-Date).ToUniversalTime()
@@ -147,7 +140,7 @@ PROCESS {
     $result = & $swmfs_test $params
     Add-Content -Path $swmfs_test_log -Value $result
     
-    $params = 23, $pathname, $filename, $test_length, 100, 0
+    $params = 23, $pathname, $filename, $test_length, 0
     Write-Verbose "$swmfs_test $params"
     $now = (Get-Date).ToUniversalTime()
     Add-Content -Path $swmfs_test_log -Value "`n--`n$now - $swmfs_test $params`n"
