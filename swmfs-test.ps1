@@ -41,9 +41,15 @@ param (
     [switch]$help
 )
 
-#Requires -Version 6.0
-
 BEGIN {
+    try {
+        # this try/catch block does not handle the exception but left in to highlight the location for new releases
+        #Requires -Version 6.0
+    }
+    catch {
+        Write-Error "A later version of Powershell is recommended. Download from https://github.com/PowerShell/PowerShell/releases."
+    }
+    
     $version = 1
 
     if ($help.IsPresent) { 
@@ -68,6 +74,12 @@ PROCESS {
         Add-Content -Path $log_file -Value "--`n$now - $command $params`n"
         $result = & $command $params
         Add-Content -Path $log_file -Value $result   
+
+        if (($command.Contains("swmfs_test")) -and ($params[0] -eq 15)) {
+            if ([bool]($result -match "Tls port")) {
+                Add-Content -Path $log_file -Value "`nNote: Encryption is enabled"
+            }
+        }
     }
 
     function Invoke-HeaderFooter {
@@ -178,5 +190,6 @@ PROCESS {
 }
 
 END {
+    Write-Verbose "output to $log_file"
     $VerbosePreference = $savedVerbosePreference
 }

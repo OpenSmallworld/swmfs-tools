@@ -1,5 +1,9 @@
 # swmfs-tools
 
+## Prerequisites
+
+A later version of Powershell is recommended. Download from [here](https://github.com/PowerShell/PowerShell/releases).
+
 ## create-certs.ps1
 
 Create `swmfs.key`, `swmfs.pem` and `swmfs.pfx` suitable for use with secured swmfs communication. By default it will create a certificate for the current machine or a named machine which can be Linux based.
