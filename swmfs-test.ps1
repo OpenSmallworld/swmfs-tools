@@ -44,7 +44,8 @@ param (
 BEGIN {
     try {
         # this try/catch block does not handle the exception but left in to highlight the location for new releases
-        #Requires -Version 6.0
+        #Requires -Version 5.0
+        # $PSVersionTable.PSVersion
     }
     catch {
         Write-Error "A later version of Powershell is recommended. Download from https://github.com/PowerShell/PowerShell/releases."
@@ -70,16 +71,19 @@ PROCESS {
         )
     
         Write-Verbose "$command $params"
-        $now = (Get-Date).ToUniversalTime()
-        Add-Content -Path $log_file -Value "--`n$now - $command $params`n"
+        $start = (Get-Date).ToUniversalTime()
+        Add-Content -Path $log_file -Value "--`n$start - $command $params`n"
         $result = & $command $params
         Add-Content -Path $log_file -Value $result   
 
         if (($command.Contains("swmfs_test")) -and ($params[0] -eq 15)) {
             if ([bool]($result -match "Tls port")) {
-                Add-Content -Path $log_file -Value "`nNote: Encryption is enabled"
+                Add-Content -Path $log_file -Value "`nEncryption is enabled`n"
             }
         }
+
+        $interval = New-TimeSpan -Start $start -End (Get-Date).ToUniversalTime()
+        Add-Content -Path $log_file -Value "`nTime interval: $interval"
     }
 
     function Invoke-HeaderFooter {
@@ -163,9 +167,12 @@ PROCESS {
     Invoke-SwmfsCommand -log_file $log_file -command $swmfs_monitor -params $params
 
     if ($trace_level -gt 0) {
-        $params = "-times", "-local_times", $trace_level, $server
+        # $params = "-times", "-local_times", $trace_level, $server # ps6
         Write-Verbose "$swmfs_trace $params"
-        $job = & $swmfs_trace $params &    
+        $command = { param($cmd, $level, $server) & $cmd -times -local_times $level $server }
+        $job = Start-Job $command -ArgumentList $swmfs_trace, $trace_level, $server
+        Start-Sleep 3 # allow swmfs_trace to connect
+        # $job = & $swmfs_trace $params & # ps6
     }
 
     $params = 13, $pathname, $filename, 10
@@ -182,7 +189,7 @@ PROCESS {
     if ($trace_level -gt 0) {
         Write-Verbose "retrieve swmfs_trace output..."
         Add-Content -Path $log_file -Value "--"
-        $job | Receive-Job | Add-Content -Path $log_file    
+        Receive-Job -Job $job | Add-Content -Path $log_file    
     }
     else {
         Add-Content -Path $log_file -Value "no swmfs_trace specified"        
