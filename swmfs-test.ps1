@@ -38,6 +38,8 @@ param (
     [string]$test_length = '10s',
     [ValidateRange(0, 3)]
     [int]$trace_level = 0,
+    [ValidateRange(0, 255)] # TODO: possibly validate predefined valies i.e. 0, 192, 255 etc
+    [int]$mdb_trace_level = 0,
     [switch]$help
 )
 
@@ -51,12 +53,17 @@ BEGIN {
         Write-Error "A later version of Powershell is recommended. Download from https://github.com/PowerShell/PowerShell/releases."
     }
     
-    $version = 1
+    $version = 2
 
     if ($help.IsPresent) { 
         Get-Help $($MyInvocation.MyCommand.Definition) -full
     }
     
+    $savedSW_TRACE = $env:SW_TRACE
+    
+    if ($mdb_trace_level -gt 0) {
+        $env:SW_TRACE = "mdb={0}" -f $mdb_trace_level
+    }
     $savedVerbosePreference = $VerbosePreference
     $VerbosePreference = "Continue"
 }
@@ -73,7 +80,7 @@ PROCESS {
         Write-Verbose "$command $params"
         $start = (Get-Date).ToUniversalTime()
         Add-Content -Path $log_file -Value "--`n$start - $command $params`n"
-        $result = & $command $params
+        $result = & $command $params 2>&1
         Add-Content -Path $log_file -Value $result   
 
         if (($command.Contains("swmfs_test")) -and ($params[0] -eq 15)) {
@@ -91,13 +98,14 @@ PROCESS {
         param (
             $log_file,
             [switch]$header,
-            [switch]$footer
+            [switch]$footer,
+            [string]$command
         )
 
         $now = (Get-Date).ToUniversalTime()
 
         if ($header.IsPresent) {
-            $string = "--`nversion: $version`nbegin: $now"
+            $string = "--`nversion: {0}`nbegin: {1}`npowershell: {2}`ncommand: {3}" -f $version, $now, $PSVersionTable.PSVersion, $command
         }
         elseif ( $footer.IsPresent) {
             $string = "--`nend: $now"
@@ -143,7 +151,7 @@ PROCESS {
 
     $params = 13, $pathname, $filename
     Write-Verbose "$swmfs_test $params"
-    $result = & $swmfs_test $params
+    $result = & $swmfs_test $params 2>&1
     
     if ($result -eq "open returns MDBE_NO_ACCESS") {
         Write-Error "$pathname\$filename does not exist or is inaccessible"
@@ -155,10 +163,16 @@ PROCESS {
         Remove-Item $log_file
     }
 
-    Invoke-HeaderFooter -log_file $log_file -header
+    Invoke-HeaderFooter -log_file $log_file -header -command $MyInvocation.Line
 
     $params = $server, "-n", 10, "-l", 4096
     Invoke-SwmfsCommand -log_file $log_file -command "ping" -params $params
+
+    $params = "/all"
+    Invoke-SwmfsCommand -log_file $log_file -command "ipconfig" -params $params
+
+    $params = $server
+    Invoke-SwmfsCommand -log_file $log_file -command "tracert" -params $params
 
     $params = 15, $server
     Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
@@ -169,7 +183,7 @@ PROCESS {
     if ($trace_level -gt 0) {
         # $params = "-times", "-local_times", $trace_level, $server # ps6
         Write-Verbose "$swmfs_trace $params"
-        $command = { param($cmd, $level, $server) & $cmd -times -local_times $level $server }
+        $command = { param($cmd, $level, $server) & $cmd -times -local_times $level $server 2>&1 }
         $job = Start-Job $command -ArgumentList $swmfs_trace, $trace_level, $server
         Start-Sleep 3 # allow swmfs_trace to connect
         # $job = & $swmfs_trace $params & # ps6
@@ -199,4 +213,5 @@ PROCESS {
 END {
     Write-Verbose "output to $log_file"
     $VerbosePreference = $savedVerbosePreference
+    $env:SW_TRACE = $savedSW_TRACE
 }
