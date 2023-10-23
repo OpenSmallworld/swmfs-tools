@@ -11,6 +11,8 @@ Generate a swmfs based support bundle
 (string) test length as recognised by swmfs_test 23. default value is '10s'
 .PARAMETER trace_level
 (integer) swmfs_trace level. default value is 0 (disabled)
+.PARAMETER no_git_check
+(switch) do not check for git repo changes
 .PARAMETER help
 (switch) Display full help and examples
 .EXAMPLE
@@ -40,6 +42,7 @@ param (
     [int]$trace_level = 0,
     [ValidateRange(0, 255)] # TODO: possibly validate predefined valies i.e. 0, 192, 255 etc
     [int]$mdb_trace_level = 0,
+    [switch]$no_git_check,
     [switch]$help
 )
 
@@ -60,7 +63,7 @@ BEGIN {
     }
     
     $savedSW_TRACE = $env:SW_TRACE
-    
+
     if ($mdb_trace_level -gt 0) {
         $env:SW_TRACE = "mdb={0}" -f $mdb_trace_level
     }
@@ -113,11 +116,48 @@ PROCESS {
 
         Add-Content -Path $log_file -Value $string
     }
+ 
+    function Get-GitPath {
+        [CmdletBinding()]
+        param (
+        )
+        $path = $null
+        $path = (Get-Command "git.exe" -ErrorAction SilentlyContinue).Path
     
+        return $path
+    }
+
+    function Invoke-CheckGit {
+        [CmdletBinding()]
+        param (
+            $script
+        )
+
+        if ($no_git_check.IsPresent) {
+            return
+        }
+
+        if (Get-GitPath) {
+            $pathname = Split-Path (Get-Item $script.MyCommand.Path) -Parent
+            if (Test-Path "$pathname\.git") {
+                $status = & git fetch --dry-run --verbose 2>&1
+                if (!([bool]($status -match "[up to date]"))) {
+                    git fetch --dry-run --verbose
+                    Write-Warning "Consider \"git pull\" to refresh or re-run with -no_git_check" 
+                    exit
+                }
+                else {
+                    # Write-Host "ok"
+                }
+            }
+        }
+    }
 
     if ($help.IsPresent) { 
         return
     }
+
+    Invoke-CheckGit -script $MyInvocation
 
     if (!( Test-Path $sw_root)) {
         Write-Error "$sw_root does not exist"
