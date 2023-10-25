@@ -24,7 +24,7 @@ Generate a swmfs based support bundle
 .\swmfs_test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds -trace 2
 .EXAMPLE
 # generate a swmfs support bundle using a local pathname. note: this only works on a swmfs server directly
-.\swmfs_test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds
+.\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds
 .NOTES
 TODO: work with 4.x based installation
 .LINK
@@ -57,6 +57,7 @@ BEGIN {
     }
     
     $version = 2
+    $threshold = 5 # ms
 
     if ($help.IsPresent) { 
         Get-Help $($MyInvocation.MyCommand.Definition) -full
@@ -89,6 +90,20 @@ PROCESS {
         if (($command.Contains("swmfs_test")) -and ($params[0] -eq 15)) {
             if ([bool]($result -match "Tls port")) {
                 Add-Content -Path $log_file -Value "`nEncryption is enabled`n"
+            }
+        }
+
+        if ($command.Contains("ping")) {
+            $regex = 'Minimum = (\d{1,4})ms, Maximum = (\d{1,4})ms, Average = (\d{1,4})ms'
+            # as result was an array, -match will only filter and does not populate $matches (https://stackoverflow.com/questions/71519641/match-and-matches-in-powershell-via-regex) so cast to string
+            $line = [string]($result -match $regex)
+            if ($line -match $regex) {
+                $avg = [int]$matches[3]
+                if ($avg -gt $threshold) {
+                    $string = "${avg}ms average ping time > ${threshold}ms. Poor latency between client and server may have a disproportionate impact on overall performance"
+                    Write-Warning "*** $string ***"
+                    Add-Content -Path $log_file -Value "`n*** Warning: $string ***"
+                }
             }
         }
 
