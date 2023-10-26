@@ -3,3 +3,4 @@ swmfs.pem
 swmfs.pfx
 *.log
 NOTES.md
+.old_files/

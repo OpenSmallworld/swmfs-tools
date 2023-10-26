@@ -193,6 +193,7 @@ PROCESS {
     $swmfs_test = "$x86_dir\swmfs_test.exe"
     $swmfs_trace = "$etc_dir\swmfs_trace.exe"
     $swmfs_monitor = "$x86_dir\swmfs_monitor.exe"
+    $swmfs_lock_monitor = "$x86_dir\swmfs_lock_monitor.exe"
     
     if (!( Test-Path $swmfs_test)) {
         Write-Error "$swmfs_test does not exist"
@@ -233,6 +234,9 @@ PROCESS {
     Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
 
     $params = $server
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_lock_monitor -params $params
+
+    $params = $server
     Invoke-SwmfsCommand -log_file $log_file -command $swmfs_monitor -params $params
 
     if ($trace_level -gt 0) {
@@ -263,10 +267,11 @@ PROCESS {
     else {
         Add-Content -Path $log_file -Value "no swmfs_trace specified"        
     }
+
+    Write-Verbose "output to $log_file"
 }
 
 END {
-    Write-Verbose "output to $log_file"
     $VerbosePreference = $savedVerbosePreference
     $env:SW_TRACE = $savedSW_TRACE
 }

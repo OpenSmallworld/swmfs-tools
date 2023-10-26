@@ -321,7 +321,7 @@ SYNOPSIS
 
 
 SYNTAX
-    C:\opt\sw\src\repos\swmfs-tools\swmfs-test.ps1 [[-sw_root] <String>] [[-pathname] <String>] [[-filename] <String>] [[-test_length] <String>] [[-trace_level] <Int32>] [-help] [<CommonParameters>]
+    C:\opt\sw\src\repos\swmfs-tools\swmfs-test.ps1 [[-sw_root] <String>] [[-pathname] <String>] [[-filename] <String>] [[-test_length] <String>] [[-trace_level] <Int32>] [[-mdb_trace_level] <Int32>] [-no_git_check] [-help] [<CommonParameters>]
 
 
 DESCRIPTION
@@ -374,6 +374,24 @@ PARAMETERS
         Accept pipeline input?       false
         Accept wildcard characters?  false
 
+    -mdb_trace_level <Int32>
+        TODO: possibly validate predefined valies i.e. 0, 192, 255 etc
+
+        Required?                    false
+        Position?                    6
+        Default value                0
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -no_git_check [<SwitchParameter>]
+        (switch) do not check for git repo changes
+
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
     -help [<SwitchParameter>]
         (switch) Display full help and examples
 
@@ -401,7 +419,7 @@ NOTES
     -------------------------- EXAMPLE 1 --------------------------
 
     PS > # generate a swmfs support bundle using a UNC pathname
-    .\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds
+    .\swmfs_test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds
 
 
 
@@ -412,13 +430,13 @@ NOTES
 
     PS > # generate a swmfs support bundle using a UNC pathname including swmfs_trace logging for the duration of the tests
     # trace levels are 1 to 3 as normal, plus level 0 is disabled (default)
-    .\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds -trace 2
+    .\swmfs_test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname \\server-name\path\to\ds\ds_gis -filename gdb.ds -trace 2
 
 
 
 
 
-
+    
     -------------------------- EXAMPLE 3 --------------------------
 
     PS > # generate a swmfs support bundle using a local pathname. note: this only works on a swmfs server directly
@@ -436,7 +454,6 @@ RELATED LINKS
     https://github.build.ge.com/105007530/swmfs-tools.git
     https://github.com/OpenSmallworld/swmfs-tools
 
-
 PS C:\opt\sw\src\repos\swmfs-tools> 
 ```
 
@@ -452,25 +469,34 @@ PS > # generate a swmfs support bundle using a UNC pathname including swmfs_trac
 
 PS > # generate a swmfs support bundle using a local pathname. note: this only works on a swmfs server directly
 
-PS C:\opt\sw\src\repos\swmfs-tools> .\swmfs-test.ps1 -sw_root C:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 0
+PS C:\opt\sw\src\repos\swmfs-tools> .\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds
+VERBOSE: ping localhost -n 10 -l 4096
+VERBOSE: ipconfig /all
+VERBOSE: tracert localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_lock_monitor.exe localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 0
+VERBOSE: output to swmfs_test_20231026T212128.log
 PS C:\opt\sw\src\repos\swmfs-tools> 
 
 PS > # generate a swmfs support bundle using a local pathname including swmfs_trace output. note: this only works on a swmfs server directly
 
-PS C:\opt\sw\src\repos\swmfs-tools> .\swmfs-test.ps1 -sw_root C:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds -trace 2
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
-VERBOSE: C:\opt\sw\installed\532PB\core\etc\x86\swmfs_trace.exe -times -local_times 2 localhost
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
-VERBOSE: C:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 0
+PS C:\opt\sw\src\repos\swmfs-tools> .\swmfs-test.ps1 -sw_root c:\opt\sw\installed\532PB -pathname C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin -filename ace.ds -trace 2
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds
+VERBOSE: ping localhost -n 10 -l 4096
+VERBOSE: ipconfig /all
+VERBOSE: tracert localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 15 localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_lock_monitor.exe localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_monitor.exe localhost
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 13 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 100:#
+VERBOSE: c:\opt\sw\installed\532PB\core\bin\x86\swmfs_test.exe 23 C:\opt\sw\installed\532PB\cambridge_db\ds\ds_admin ace.ds 10s 0
+VERBOSE: output to swmfs_test_20231026T212128.log
 VERBOSE: retrieve swmfs_trace output...
 PS C:\opt\sw\src\repos\swmfs-tools> 
 ```
