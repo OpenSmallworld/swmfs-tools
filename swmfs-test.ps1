@@ -56,7 +56,7 @@ BEGIN {
         Write-Error "A later version of Powershell is recommended. Download from https://github.com/PowerShell/PowerShell/releases."
     }
     
-    $version = 2
+    $version = 3
     $threshold = 5 # ms
 
     if ($help.IsPresent) { 
