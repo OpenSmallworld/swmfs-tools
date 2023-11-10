@@ -9,11 +9,11 @@ See -help for full details and examples
 .PARAMETER domainname
 (string) domainname for certificate (defaults to $env:userdnsdomain)
 .PARAMETER casubject
-(string) CA Subject for certificate (defaults to CN=MyRootCA,O=MyRootCA,OU=MyRootCA')
+(string) CA Subject for certificate (defaults to CN=MyRootCA,O=MyRootCA,OU=MyRootCA)
 .PARAMETER cakeylength
 (integer) key length for certificate. accetable values are 2048 or 4096 only (defaults to 2048)
 .PARAMETER subject
-(string) Subject for certificate (defaults to CN=swmfs')
+(string) Subject for certificate (defaults to CN=swmfs)
 .PARAMETER months
 (integer) number of months for certificate (defaults to 36)
 .PARAMETER help

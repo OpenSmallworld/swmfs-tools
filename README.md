@@ -6,8 +6,11 @@ A later version of Powershell is recommended. Download from [here](https://githu
 
 ## create-certs.ps1
 
-Create `swmfs.key`, `swmfs.pem` and `swmfs.pfx` suitable for use with secured swmfs communication. By default it will create a certificate for the current machine or a named machine which can be Linux based.
-Use `.\create-certs.ps1 -help` for full details and examples
+Create `swmfs.pem`, `swmfs.key` and `swmfs.pfx` suitable for use with secured swmfs communication. By default it will create a certificate for the current machine or a named machine which can be Linux based.
+
+Note: The certificate is exported directly from the certificate store in `pfx` and `pem` formats. There is no need to import anything on Windows.
+
+Use `.\create-certs.ps1 -help` for full details and examples.
 
 ### Usage
 
