@@ -11,6 +11,8 @@ See -help for full details and examples
 .PARAMETER casubject
 (string) CA Subject for certificate (defaults to CN=MyRootCA,O=MyRootCA,OU=MyRootCA)
 .PARAMETER cakeylength
+(integer) key length for ca certificate. accetable values are 2048 or 4096 only (defaults to 2048)
+.PARAMETER keylength
 (integer) key length for certificate. accetable values are 2048 or 4096 only (defaults to 2048)
 .PARAMETER subject
 (string) Subject for certificate (defaults to CN=swmfs)
@@ -22,6 +24,9 @@ See -help for full details and examples
 # Create certificates for current machine
 .\create-certs.ps1
 .EXAMPLE
+# Create certificates for current machine with increased key length
+.\create-certs.ps1 -keylength 4096
+.EXAMPLE
 # Create certificates for named machine smallworld.example.org
 .\create-certs.ps1 -hostname smallworld -domainname example.org
 .EXAMPLE
@@ -30,7 +35,7 @@ See -help for full details and examples
 #
 .\create-certs.ps1 -hostname smallworld -domainname example.org -verbose
 .EXAMPLE
-# Create certificates for named machine smallworld.example.org with higher strength key length
+# Create certificates for named machine smallworld.example.org with increased key length for ca certificate
 .\create-certs.ps1 -host smallworld -domain example.org -cakeylen 4096
 .EXAMPLE
 # Create certificates for named machine smallworld.example.org for 120 months
@@ -42,7 +47,7 @@ See -help for full details and examples
 #
 Get-Help .\create-certs.ps1 -examples
 .NOTES
-Pre-requisites: this tool requires a standalone install of openssl
+Pre-requisites: this tool requires a standalone installation of openssl
 .LINK
 https://github.com/OpenSmallworld/swmfs-tools
 https://github.build.ge.com/105007530/swmfs-tools.git
@@ -59,6 +64,9 @@ param (
     [Parameter(Mandatory = $false, ParameterSetName = "GenerateCertificates")]
     [ValidateSet(2048, 4096)]
     [int]$CAKeyLength = 2048,
+    [Parameter(Mandatory = $false, ParameterSetName = "GenerateCertificates")]
+    [ValidateSet(2048, 4096)]
+    [int]$KeyLength = 2048,
     [Parameter(Mandatory = $false, ParameterSetName = "GenerateCertificates")]
     [string]$subject = 'CN=swmfs',
     [Parameter(Mandatory = $false, ParameterSetName = "GenerateCertificates")]
@@ -104,7 +112,6 @@ function Get-CertificateOutput {
             }
         }
     }
-
 }
 
 try {
@@ -150,7 +157,11 @@ $cert = New-SelfSignedCertificate `
     -DnsName @($fqhn, $hostname, 'localhost', '127.0.0.1') `
     -NotAfter (Get-Date).AddMonths($months) `
     -Signer $rootCert `
-    -KeyUsage KeyEncipherment, DigitalSignature
+    -KeyLength $KeyLength `
+    -KeyUsage KeyEncipherment, DigitalSignature `
+    -KeyAlgorithm 'RSA'  `
+    -HashAlgorithm 'SHA256'  `
+    -Provider 'Microsoft Enhanced RSA and AES Cryptographic Provider'
 
 # export
 $password = New-Object -TypeName PSObject
