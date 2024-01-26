@@ -10,7 +10,7 @@ Create `swmfs.pem`, `swmfs.key` and `swmfs.pfx` suitable for use with secured sw
 
 Note: The certificate is exported directly from the certificate store in `pfx` and `pem` formats. There is no need to import anything on Windows.
 
-It is important to point out that self-signed certificates cannot be used in conjunction with the `-mtls` argument. Although the server will start, the client cannot use a self-signed certificate and will disconnect. This is a deliberate function of a trusted 
+It is important to point out that self-signed certificates cannot be used in conjunction with the `-mtls` argument. Although the server will start, the client will not use a self-signed certificate and will disconnect. This is a requirement for a trusted secure swmfs installation.
 
 Use `.\create-certs.ps1 -help` for full details and examples.
 
