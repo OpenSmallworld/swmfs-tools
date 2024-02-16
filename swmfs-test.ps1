@@ -206,7 +206,7 @@ PROCESS {
     }
 
     $params = 13, $pathname, $filename
-    Write-Verbose "$swmfs_test $params"
+    Write-Verbose "Testing accessibility"
     $result = & $swmfs_test $params 2>&1
     
     if ($result -eq "open returns MDBE_NO_ACCESS") {
@@ -248,7 +248,13 @@ PROCESS {
         # $job = & $swmfs_trace $params & # ps6
     }
 
+    $params = 13, $pathname, $filename
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
+
     $params = 13, $pathname, $filename, 10
+    Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
+
+    $params = 20, $pathname, $filename
     Invoke-SwmfsCommand -log_file $log_file -command $swmfs_test -params $params
 
     $params = 23, $pathname, $filename, $test_length, "100:#"
